@@ -1,0 +1,31 @@
+version: "3"
+services:
+  alertdigest-redis:
+    container_name: alertdigest-redis
+    restart: unless-stopped
+    networks:
+      - monitoring-net
+    image: redis:7
+
+  alertdigest:
+    build:
+      context: ./alertdigest
+    image: alertdigest:latest
+    container_name: alertdigest
+    restart: unless-stopped
+    networks:
+      - monitoring-net
+    ports:
+      - 9567:9567
+    environment:
+      GUNICORN_CMD_ARGS: "--log-level=debug"
+      REDIS_HOST: alertdigest-redis
+      REDIS_PASSWORD: "abc"
+      EMAIL_PASSWORD: "def"
+    depends_on:
+      - alertdigest-redis
+
+networks:
+  monitoring-net:
+    name: monitoring-net
+
